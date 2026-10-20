@@ -1,0 +1,4 @@
+[main]
+NetworkingEnabled=false
+WirelessEnabled=false
+WWANEnabled=false

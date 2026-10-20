@@ -1,0 +1,38 @@
+# Système live
+live-boot
+live-config
+live-config-systemd
+systemd-sysv
+locales
+console-setup
+keyboard-configuration
+whiptail
+python3
+
+# Antivirus et analyse
+clamav
+clamav-daemon
+clamav-freshclam
+clamdscan
+yara
+python3-oletools
+
+# Supports USB
+ntfs-3g
+exfatprogs
+dosfstools
+e2fsprogs
+parted
+zip
+unzip
+usbguard
+usbutils
+
+# Mise à jour via le partage de connexion du smartphone
+network-manager
+usbmuxd
+libimobiledevice-utils
+ca-certificates
+curl
+systemd-timesyncd
+util-linux-extra

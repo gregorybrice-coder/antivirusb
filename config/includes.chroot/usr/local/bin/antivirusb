@@ -1,0 +1,8 @@
+#!/usr/bin/python3 -I
+"""Lanceur du menu de la station blanche antivirusb."""
+import sys
+
+sys.path.insert(0, "/usr/local/lib/antivirusb")
+from avb.main import main  # noqa: E402
+
+main()

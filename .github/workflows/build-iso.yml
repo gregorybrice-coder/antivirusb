@@ -1,0 +1,27 @@
+name: Construire l'ISO antivirusb
+
+on:
+  workflow_dispatch:        # bouton « Run workflow » dans l'onglet Actions
+  push:
+    tags: ["v*"]
+
+jobs:
+  iso:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Construction dans un conteneur Debian
+        run: |
+          docker run --rm --privileged -v "$PWD":/src -w /src debian:trixie bash build.sh
+
+      - name: Publication de l'image
+        uses: actions/upload-artifact@v4
+        with:
+          name: antivirusb-iso
+          path: |
+            antivirusb-*.iso
+            antivirusb-*.iso.sha256
+          compression-level: 0
+          retention-days: 30

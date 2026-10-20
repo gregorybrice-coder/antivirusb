@@ -1,0 +1,43 @@
+#!/bin/sh
+# antivirusb - réglages appliqués dans le système live pendant la construction de l'image.
+set -e
+
+echo "[antivirusb] utilisateur d'analyse sans privilèges"
+id avscan >/dev/null 2>&1 || useradd --system --home-dir /nonexistent --no-create-home \
+    --shell /usr/sbin/nologin avscan
+
+echo "[antivirusb] ClamAV : démarré par le menu (les définitions sont sur le disque AVDATA)"
+systemctl disable clamav-daemon.service clamav-freshclam.service >/dev/null 2>&1 || true
+systemctl disable clamav-daemon.socket >/dev/null 2>&1 || true
+systemctl mask clamav-freshclam.service >/dev/null 2>&1 || true
+CONF=/etc/clamav/clamd.conf
+if [ -f "$CONF" ]; then
+    setopt() {
+        if grep -q "^$1 " "$CONF"; then sed -i "s|^$1 .*|$1 $2|" "$CONF"; else echo "$1 $2" >> "$CONF"; fi
+    }
+    setopt ConcurrentDatabaseReload no   # évite de doubler la mémoire au rechargement
+    setopt FollowDirectorySymlinks false
+    setopt FollowFileSymlinks false
+    setopt MaxFileSize 400M
+    setopt MaxScanSize 1000M
+else
+    echo "[antivirusb] ATTENTION : $CONF absent"
+fi
+
+echo "[antivirusb] USBGuard"
+UGC=/etc/usbguard/usbguard-daemon.conf
+sed -i -e 's/^PresentDevicePolicy=.*/PresentDevicePolicy=allow/' \
+       -e 's/^InsertedDevicePolicy=.*/InsertedDevicePolicy=apply-policy/' \
+       -e 's/^ImplicitPolicyTarget=.*/ImplicitPolicyTarget=block/' "$UGC"
+chown root:root /etc/usbguard/rules.conf
+chmod 600 /etc/usbguard/rules.conf
+systemctl enable usbguard.service
+
+echo "[antivirusb] services inutiles"
+systemctl mask apt-daily.timer apt-daily-upgrade.timer man-db.timer >/dev/null 2>&1 || true
+
+echo "[antivirusb] programme de la station"
+chmod 755 /usr/local/bin/antivirusb
+chmod -R a+rX /usr/local/lib/antivirusb
+python3 -m compileall -q /usr/local/lib/antivirusb || true
+mkdir -p /srv/avdata /mnt/avscan

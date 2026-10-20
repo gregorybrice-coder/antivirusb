@@ -33,6 +33,10 @@ chown root:root /etc/usbguard/rules.conf
 chmod 600 /etc/usbguard/rules.conf
 systemctl enable usbguard.service
 
+echo "[antivirusb] oletools (analyse des macros Office, absent des dépôts Debian)"
+pip3 install --break-system-packages --no-cache-dir oletools \
+    || echo "[antivirusb] ATTENTION : oletools non installé, analyse des macros indisponible"
+
 echo "[antivirusb] services inutiles"
 systemctl mask apt-daily.timer apt-daily-upgrade.timer man-db.timer >/dev/null 2>&1 || true
 

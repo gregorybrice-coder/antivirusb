@@ -15,7 +15,7 @@ clamav-daemon
 clamav-freshclam
 clamdscan
 yara
-python3-oletools
+python3-pip
 
 # Supports USB
 ntfs-3g
